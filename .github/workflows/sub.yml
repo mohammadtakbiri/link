@@ -1,58 +1,72 @@
-name: Build Subscription
+name: build-subscription
 
 on:
+  push:
   workflow_dispatch:
-  schedule:
-    - cron: "*/10 * * * *"
-
-permissions:
-  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download
+      - name: Fetch subscription
         run: |
           curl -L --max-time 30 "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
 
-      - name: Detect + Decode safely
+      - name: Detect & decode input
         run: |
-          # اگر فایل base64 بود
-          if head -c 20 raw.txt | grep -qE '^[A-Za-z0-9+/=]+$'; then
-            echo "BASE64 detected"
-            base64 -d raw.txt > decoded.txt || cp raw.txt decoded.txt
+          echo "INPUT SIZE:"
+          wc -c raw.txt
+
+          # try base64 decode safely
+          if base64 -d raw.txt >/dev/null 2>&1; then
+            base64 -d raw.txt > decoded.txt
+            echo "FORMAT: BASE64"
           else
-            echo "PLAIN detected"
             cp raw.txt decoded.txt
+            echo "FORMAT: RAW"
           fi
 
-      - name: Extract vless properly
+      - name: Extract valid VLESS links
         run: |
-          grep -Eo 'vless://[^ \r\n]+' decoded.txt > nodes.txt || true
+          # extract only valid full links
+          grep -oE 'vless://[^[:space:]]+' decoded.txt \
+            | grep -E '.+@.+:[0-9]+\?.+' \
+            > nodes.txt || true
 
-      - name: Fallback safe
+          # remove broken/short lines
+          awk 'length($0) > 60' nodes.txt > clean.txt
+          mv clean.txt nodes.txt
+
+          echo "VALID LINKS COUNT:"
+          wc -l nodes.txt
+
+          echo "SAMPLE LINKS:"
+          head -n 5 nodes.txt
+
+      - name: Validate output
         run: |
           if [ ! -s nodes.txt ]; then
-            echo "⚠️ fallback activated"
-            cp decoded.txt nodes.txt
+            echo "ERROR: No valid VLESS nodes found"
+            exit 1
           fi
 
-      - name: Build final sub
+      - name: Encode subscription
         run: |
-          cp nodes.txt sub.txt
-          echo "FINAL SIZE:"
+          base64 -w 0 nodes.txt > sub.txt
+
+          echo "FINAL SUB SIZE:"
           wc -c sub.txt
 
-      - name: Commit
+      - name: Commit changes
         run: |
           git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.email "github-actions@github.com"
 
-          git add sub.txt
-          git commit -m "update sub" || exit 0
+          git add sub.txt nodes.txt
+
+          git commit -m "update subscription" || echo "no changes"
           git push
