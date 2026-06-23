@@ -3,7 +3,7 @@ name: Build Subscription
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/10 * * * *"
 
 permissions:
   contents: write
@@ -44,7 +44,7 @@ jobs:
 
       - name: Build final sub
         run: |
-          base64 -w 0 nodes.txt > sub.txt
+          cp nodes.txt sub.txt
           echo "FINAL SIZE:"
           wc -c sub.txt
 
