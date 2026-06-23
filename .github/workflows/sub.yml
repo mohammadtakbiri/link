@@ -1,4 +1,4 @@
-name: Smart Subscription Builder (Stable)
+name: Build Subscription
 
 on:
   workflow_dispatch:
@@ -6,57 +6,60 @@ on:
     - cron: "*/30 * * * *"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Fetch subscription
         run: |
-          curl -L --max-time 20 "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
+          curl -L --max-time 30 "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
 
-      - name: Debug raw size
+      - name: Debug raw
         run: |
-          echo "RAW SIZE:"
+          echo "SIZE:"
           wc -c raw.txt
-          echo "RAW PREVIEW:"
-          head -c 300 raw.txt
+          echo "PREVIEW:"
+          head -c 200 raw.txt
 
-      - name: Extract ALL vless (robust)
+      - name: Decode / normalize
         run: |
-          # remove html + extract urls safely
-          cat raw.txt \
-          | tr '\r\n' ' ' \
-          | grep -oE 'vless://[^ "><]+' \
-          > nodes.txt || true
+          # اگر base64 بود decode کن
+          if base64 -d raw.txt >/dev/null 2>&1; then
+            base64 -d raw.txt > decoded.txt || cp raw.txt decoded.txt
+          else
+            cp raw.txt decoded.txt
+          fi
 
-          echo "NODES FOUND:"
-          wc -l nodes.txt
+      - name: Extract vless links safely
+        run: |
+          grep -oE 'vless://[^ \"]+' decoded.txt > nodes.txt || true
 
       - name: Fallback if empty
         run: |
           if [ ! -s nodes.txt ]; then
-            echo "⚠️ No vless found → fallback raw"
-            cp raw.txt nodes.txt
+            echo "⚠️ fallback raw used"
+            cp decoded.txt nodes.txt
           fi
 
-      - name: Clean output
+      - name: Encode base64
         run: |
-          # remove duplicates + empty lines
-          sort -u nodes.txt > clean.txt || true
-
-      - name: Final output (NO base64)
-        run: |
-          cp clean.txt sub.txt
-
-          echo "FINAL CHECK:"
+          base64 -w 0 nodes.txt > sub.txt
+          echo "FINAL SIZE:"
           wc -c sub.txt
-          head sub.txt
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: subscription
-          path: sub.txt
+      - name: Commit & Push
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git add sub.txt
+          git commit -m "update sub" || exit 0
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
