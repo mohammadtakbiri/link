@@ -13,35 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: DEBUG
-        run: |
-          pwd
-          ls -la
-          git status
-
       - name: Fetch subscription
         run: |
           curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
 
-      - name: Extract
+      - name: Extract vless
         run: |
           grep -oE 'vless://[^"]+' raw.txt > nodes.txt || true
 
-      - name: Encode
+      - name: Encode base64
         run: |
           base64 -w 0 nodes.txt > sub.txt
 
-      - name: Commit & Push
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git add sub.txt
-          git commit -m "update" || exit 0
-
-          git push
+      - name: Upload to GitHub (NO GIT)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sub
+          path: sub.txt
