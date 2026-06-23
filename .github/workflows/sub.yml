@@ -1,4 +1,4 @@
-name: Smart Subscription Builder
+name: Smart Subscription Builder (Stable)
 
 on:
   workflow_dispatch:
@@ -15,47 +15,47 @@ jobs:
     steps:
       - name: Fetch subscription
         run: |
-          curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
+          curl -L --max-time 20 "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
 
-      - name: Detect format + Normalize
+      - name: Debug raw size
         run: |
-          echo "=== INPUT PREVIEW ==="
-          head -c 200 raw.txt
+          echo "RAW SIZE:"
+          wc -c raw.txt
+          echo "RAW PREVIEW:"
+          head -c 300 raw.txt
 
-          echo ""
+      - name: Extract ALL vless (robust)
+        run: |
+          # remove html + extract urls safely
+          cat raw.txt \
+          | tr '\r\n' ' ' \
+          | grep -oE 'vless://[^ "><]+' \
+          > nodes.txt || true
 
-          # 1) Try detect raw vless
-          if grep -q "vless://" raw.txt; then
-            echo "Detected: RAW VLESS LIST"
-            grep -oE 'vless://[^"]+' raw.txt > nodes.txt || true
+          echo "NODES FOUND:"
+          wc -l nodes.txt
 
-          # 2) Try base64 decode
-          else
-            echo "Detected: BASE64 or ENCODED SUB"
-
-            base64 -d raw.txt > decoded.txt 2>/dev/null || cp raw.txt decoded.txt
-
-            grep -oE 'vless://[^"]+' decoded.txt > nodes.txt || true
-          fi
-
-          echo "=== NODES FOUND ==="
-          wc -l nodes.txt || true
-
-      - name: Prevent empty output
+      - name: Fallback if empty
         run: |
           if [ ! -s nodes.txt ]; then
-            echo "WARNING: nodes.txt empty → fallback to raw"
+            echo "⚠️ No vless found → fallback raw"
             cp raw.txt nodes.txt
           fi
 
-      - name: Encode for Passwall2
+      - name: Clean output
         run: |
-          base64 -w 0 nodes.txt > sub.txt
+          # remove duplicates + empty lines
+          sort -u nodes.txt > clean.txt || true
 
-          echo "=== FINAL SIZE ==="
+      - name: Final output (NO base64)
+        run: |
+          cp clean.txt sub.txt
+
+          echo "FINAL CHECK:"
           wc -c sub.txt
+          head sub.txt
 
-      - name: Upload artifact (safe output)
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: subscription
