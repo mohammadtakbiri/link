@@ -2,7 +2,7 @@ name: Update Subscription
 
 on:
   schedule:
-    - cron: "*/1 * * * *"   # هر 15 دقیقه
+    - cron: "*/5 * * * *"   # هر 15 دقیقه
   workflow_dispatch:
 
 jobs:
