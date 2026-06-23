@@ -1,4 +1,4 @@
-name: Build Subscription (DEBUG)
+name: Build Subscription
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: "*/30 * * * *"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -16,50 +16,32 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: 🔍 DEBUG - System Info
+      - name: VERIFY CHECKOUT
         run: |
-          echo "=== PWD ==="
+          echo "PWD:"
           pwd
-
-          echo "=== LS ==="
+          echo "LS:"
           ls -la
-
-          echo "=== GIT ROOT CHECK ==="
-          git rev-parse --show-toplevel || true
-
-          echo "=== GIT STATUS ==="
-          git status || true
+          echo "GIT:"
+          git status
 
       - name: Fetch subscription
         run: |
           curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
 
-      - name: DEBUG - raw.txt preview
-        run: |
-          echo "=== RAW HEAD ==="
-          head -c 300 raw.txt
-          echo ""
-          echo "=== FILE SIZE ==="
-          wc -c raw.txt
-
       - name: Extract vless
         run: |
           grep -oE 'vless://[^"]+' raw.txt > nodes.txt || true
 
-          echo "=== NODES COUNT ==="
-          wc -l nodes.txt || true
-
-      - name: DEBUG - nodes content
-        run: |
-          head nodes.txt || true
-
-      - name: Encode base64
+      - name: Encode
         run: |
           base64 -w 0 nodes.txt > sub.txt
 
-          echo "=== SUB SIZE ==="
-          wc -c sub.txt || true
-
-      - name: DEBUG - final output
+      - name: Commit & Push
         run: |
-          head -c 200 sub.txt
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add sub.txt
+          git commit -m "update" || exit 0
+          git push
