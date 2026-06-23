@@ -2,7 +2,7 @@ name: Update Subscription
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # هر 15 دقیقه
+    - cron: "*/1 * * * *"   # هر 15 دقیقه
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Get subscription
         run: |
-          curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" | base64 -d > nodes.txt
+          curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" | base64 -d > sub.txt
 
       - name: Keep only vless links
         run: |
