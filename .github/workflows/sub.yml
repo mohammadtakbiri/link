@@ -6,7 +6,9 @@ on:
     - cron: "*/30 * * * *"
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
@@ -25,8 +27,21 @@ jobs:
         run: |
           base64 -w 0 nodes.txt > sub.txt
 
-      - name: Upload to GitHub (NO GIT)
-        uses: actions/upload-artifact@v4
+      - name: Prepare site
+        run: |
+          mkdir -p public
+          cp sub.txt public/sub.txt
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: sub
-          path: sub.txt
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Deploy
+        uses: actions/deploy-pages@v4
