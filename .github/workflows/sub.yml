@@ -1,4 +1,4 @@
-name: Build Subscription
+name: Build Subscription (DEBUG)
 
 on:
   workflow_dispatch:
@@ -7,41 +7,59 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 🔍 DEBUG - System Info
+        run: |
+          echo "=== PWD ==="
+          pwd
+
+          echo "=== LS ==="
+          ls -la
+
+          echo "=== GIT ROOT CHECK ==="
+          git rev-parse --show-toplevel || true
+
+          echo "=== GIT STATUS ==="
+          git status || true
+
       - name: Fetch subscription
         run: |
           curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
+
+      - name: DEBUG - raw.txt preview
+        run: |
+          echo "=== RAW HEAD ==="
+          head -c 300 raw.txt
+          echo ""
+          echo "=== FILE SIZE ==="
+          wc -c raw.txt
 
       - name: Extract vless
         run: |
           grep -oE 'vless://[^"]+' raw.txt > nodes.txt || true
 
+          echo "=== NODES COUNT ==="
+          wc -l nodes.txt || true
+
+      - name: DEBUG - nodes content
+        run: |
+          head nodes.txt || true
+
       - name: Encode base64
         run: |
           base64 -w 0 nodes.txt > sub.txt
 
-      - name: Prepare site
+          echo "=== SUB SIZE ==="
+          wc -c sub.txt || true
+
+      - name: DEBUG - final output
         run: |
-          mkdir -p public
-          cp sub.txt public/sub.txt
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-    steps:
-      - name: Deploy
-        uses: actions/deploy-pages@v4
+          head -c 200 sub.txt
