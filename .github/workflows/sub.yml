@@ -1,4 +1,4 @@
-name: Build Subscription
+name: Smart Subscription Builder
 
 on:
   workflow_dispatch:
@@ -6,42 +6,57 @@ on:
     - cron: "*/30 * * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: VERIFY CHECKOUT
-        run: |
-          echo "PWD:"
-          pwd
-          echo "LS:"
-          ls -la
-          echo "GIT:"
-          git status
-
       - name: Fetch subscription
         run: |
           curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" -o raw.txt
 
-      - name: Extract vless
+      - name: Detect format + Normalize
         run: |
-          grep -oE 'vless://[^"]+' raw.txt > nodes.txt || true
+          echo "=== INPUT PREVIEW ==="
+          head -c 200 raw.txt
 
-      - name: Encode
+          echo ""
+
+          # 1) Try detect raw vless
+          if grep -q "vless://" raw.txt; then
+            echo "Detected: RAW VLESS LIST"
+            grep -oE 'vless://[^"]+' raw.txt > nodes.txt || true
+
+          # 2) Try base64 decode
+          else
+            echo "Detected: BASE64 or ENCODED SUB"
+
+            base64 -d raw.txt > decoded.txt 2>/dev/null || cp raw.txt decoded.txt
+
+            grep -oE 'vless://[^"]+' decoded.txt > nodes.txt || true
+          fi
+
+          echo "=== NODES FOUND ==="
+          wc -l nodes.txt || true
+
+      - name: Prevent empty output
+        run: |
+          if [ ! -s nodes.txt ]; then
+            echo "WARNING: nodes.txt empty → fallback to raw"
+            cp raw.txt nodes.txt
+          fi
+
+      - name: Encode for Passwall2
         run: |
           base64 -w 0 nodes.txt > sub.txt
 
-      - name: Commit & Push
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          echo "=== FINAL SIZE ==="
+          wc -c sub.txt
 
-          git add sub.txt
-          git commit -m "update" || exit 0
-          git push
+      - name: Upload artifact (safe output)
+        uses: actions/upload-artifact@v4
+        with:
+          name: subscription
+          path: sub.txt
