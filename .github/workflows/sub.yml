@@ -1,0 +1,31 @@
+name: Update Subscription
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # هر 10 دقیقه
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get subscription
+        run: |
+          curl -sL "https://sub.firoozehmobile.sbs/sub/MTFfTW9oYW1tYWRUXzMxMTEsMTc4MjIwNDk1NwNY0pXttJ_k" | base64 -d > nodes.txt
+
+      - name: Keep only vless links
+        run: |
+          grep -E '^vless://' nodes.txt > clean.txt || true
+
+      - name: Encode to base64
+        run: |
+          base64 -w 0 clean.txt > sub.txt
+
+      - name: Commit result
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add sub.txt
+          git commit -m "update sub" || exit 0
+          git push
