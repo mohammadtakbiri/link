@@ -1,10 +1,6 @@
 vless://119300cb-9be5-474b-8865-46a733da77f2@1.1.1.1:80?security=none&type=tcp&headerType=none&path=&host=#%F0%9F%91%A4%20%F0%9D%97%A8%F0%9D%98%80%F0%9D%97%B2%F0%9D%97%BF%3A%20wM0a7n-Bot%20
-vless://119300cb-9be5-474b-8865-46a733da77f2@135.125.185.40:6001?security=none&type=tcp&headerType=none&path=&host=#sin8%20%28wM0a7n-Bot%29%20%5BVLESS%20-%20tcp%5D
 vless://119300cb-9be5-474b-8865-46a733da77f2@s1.cnavippanel.com:4568?security=none&type=tcp&headerType=http&path=%2F&host=www.icloud.com#%F0%9F%87%A9%F0%9F%87%AA%20%F0%9D%97%9A%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%BA%F0%9D%97%AE%F0%9D%97%BB%F0%9D%98%86
 vless://119300cb-9be5-474b-8865-46a733da77f2@s2.cnavippanel.com:4568?security=none&type=tcp&headerType=http&path=%2F&host=play.google.com#%F0%9F%87%A9%F0%9F%87%AA%20%F0%9D%97%9A%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%BA%F0%9D%97%AE%F0%9D%97%BB%F0%9D%98%86
 vless://119300cb-9be5-474b-8865-46a733da77f2@s3.cnavippanel.com:4568?security=none&type=tcp&headerType=http&path=%2F&host=play.google.com#%F0%9F%87%A9%F0%9F%87%AA%20%F0%9D%97%9A%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%BA%F0%9D%97%AE%F0%9D%97%BB%F0%9D%98%86
-vless://119300cb-9be5-474b-8865-46a733da77f2@135.125.185.40:4568?security=none&type=tcp&headerType=http&path=%2F&host=cloudflare.com#sin8%20%28wM0a7n-Bot%29%20%5BVLESS%20-%20tcp%5D
 vless://119300cb-9be5-474b-8865-46a733da77f2@s4.cnavippanel.com:8090?security=none&type=tcp&headerType=http&path=%2F&host=www.icloud.com#%F0%9F%87%A9%F0%9F%87%AA%20%F0%9D%97%9A%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%BA%F0%9D%97%AE%F0%9D%97%BB%F0%9D%98%86
 vless://119300cb-9be5-474b-8865-46a733da77f2@s5.cnavippanel.com:8090?security=none&type=tcp&headerType=http&path=%2F&host=www.icloud.com#%F0%9F%87%A9%F0%9F%87%AA%20%F0%9D%97%9A%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%BA%F0%9D%97%AE%F0%9D%97%BB%F0%9D%98%86
-vless://119300cb-9be5-474b-8865-46a733da77f2@135.125.185.40:8090?security=none&type=tcp&headerType=http&path=%2F&host=#sin8%20%28wM0a7n-Bot%29%20%5BVLESS%20-%20tcp%5D
-vless://119300cb-9be5-474b-8865-46a733da77f2@135.125.185.40:8443?security=tls&type=ws&headerType=&path=%2F&host=&sni=sublink.cnavippanel.com&fp=#sin8%20%28wM0a7n-Bot%29%20%5BVLESS%20-%20ws%5D
