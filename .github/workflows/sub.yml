@@ -15,7 +15,7 @@ jobs:
 
       - name: Fetch subscription
         run: |
-          curl -L --max-time 30 "https://sublink.cnavippanel.com/sub/d00wYTduLUJvdCwxNzgzNjE0Nzcx4wKHXH4Y7f" -o raw.txt
+          curl -L --max-time 30 "https://sublink.cnavippanel.com:443/sub/d00wYTduLUJvdCwxNzgzNTIwOTY1NOc0zxJLKD" -o raw.txt
 
       - name: Detect format & decode
         run: |
