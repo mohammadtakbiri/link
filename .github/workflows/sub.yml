@@ -15,7 +15,7 @@ jobs:
 
       - name: Fetch subscription
         run: |
-          curl -L --max-time 30 "https://sbu.lynch.ir/sub/djMsNTkwOTkyLDE3ODYwMjU0NTg.iIkzFi9tXlq2AFr1Nd1A4m0dtGEZ_UCNmGQcUqdA9aU" -o raw.txt
+          curl -L --max-time 30 "https://sbu.lynch.ir/sub/djMsNTkwOTkyLDE3ODYwMjUwMjg.WEqH1acTid6HMwi4RCYMK3R1MpEP02fKOy_jH9LD4wg" -o raw.txt
 
       - name: Detect format & decode
         run: |
